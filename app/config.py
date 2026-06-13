@@ -14,9 +14,9 @@ load_dotenv()
 PROJECT_ROOT = Path(__file__).parent.parent
 
 # Pinecone Configuration
-PINCONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
-PINCONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT", "")
-PINCONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "documents")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
+PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT", "")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "documents")
 
 # Hugging Face Configuration
 HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN", "")

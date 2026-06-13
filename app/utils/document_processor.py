@@ -225,11 +225,19 @@ class DocumentProcessor:
         """Split a large chunk into smaller pieces with overlap"""
         chunks = []
         start = 0
-        
+
         while start < len(text):
             end = min(start + self.chunk_size, len(text))
             chunk = text[start:end]
             chunks.append(chunk)
-            start = end - self.chunk_overlap
-        
+
+            if end >= len(text):
+                break
+
+            next_start = end - self.chunk_overlap
+            if next_start <= start:
+                next_start = end
+
+            start = next_start
+
         return chunks

@@ -47,4 +47,4 @@ def test_chunking(processor):
     
     assert len(chunks) > 0
     for chunk in chunks:
-        assert len(chunk) <= processor.chunk_size or len(chunk) > processor.chunk_size
+        assert len(chunk) <= processor.chunk_size
