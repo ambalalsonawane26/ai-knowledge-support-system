@@ -18,15 +18,13 @@ class PineconeVectorStore:
         """Initialize Pinecone connection"""
         logger.info("Initializing Pinecone Vector Store")
         
-        # Initialize Pinecone
-        pinecone.init(
-            api_key=PINECONE_API_KEY,
-            environment=PINECONE_ENVIRONMENT
-        )
-        
-        # Get or create index
+        # Initialize Pinecone client and target the index by name.
         self.index_name = PINECONE_INDEX_NAME
-        self.index = pinecone.Index(self.index_name)
+        self.pinecone_client = pinecone.Pinecone(
+            api_key=PINECONE_API_KEY,
+            host=PINECONE_ENVIRONMENT
+        )
+        self.index = self.pinecone_client.Index(self.index_name)
         
         # Initialize embedding generator
         self.embedding_generator = EmbeddingGenerator()

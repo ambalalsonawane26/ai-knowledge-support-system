@@ -96,9 +96,9 @@ streamlit run app/main.py
 Edit `.env` file with your settings:
 
 ```
-PINCONE_API_KEY=your_key
-PINCONE_ENVIRONMENT=your_environment
-PINCONE_INDEX_NAME=documents
+PINECONE_API_KEY=your_key
+PINECONE_ENVIRONMENT=your_environment
+PINECONE_INDEX_NAME=documents
 HUGGINGFACE_API_TOKEN=your_token
 LLM_MODEL_NAME=mistral-7b
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2

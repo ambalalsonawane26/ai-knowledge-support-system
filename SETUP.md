@@ -62,9 +62,9 @@ nano .env  # or use your preferred editor
 
 Fill in the following:
 ```
-PINCONE_API_KEY=your_pinecone_key
-PINCONE_ENVIRONMENT=your_environment_name
-PINCONE_INDEX_NAME=documents
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_ENVIRONMENT=your_environment_name
+PINECONE_INDEX_NAME=documents
 HUGGINGFACE_API_TOKEN=your_huggingface_token
 LLM_MODEL_NAME=mistral-7b
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
