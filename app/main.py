@@ -234,45 +234,7 @@ def main():
                             - Similarity: {source['similarity_score']:.2%}
                             - Preview: {source['preview'][:150]}...
                             """)
-        
-        # Input
-        user_query = st.chat_input("Ask a question...", key="user_input")
-        
-        if user_query:
-            # Add user message to history
-            st.session_state.chat_history.append({
-                "role": "user",
-                "content": user_query
-            })
-            
-            # Display user message
-            with st.chat_message("user"):
-                st.markdown(user_query)
-            
-            # Generate response
-            with st.chat_message("assistant"):
-                with st.spinner("🤔 Thinking..."):
-                    response_data = answer_question(user_query, system)
-                
-                st.markdown(response_data.get("response", "No response generated"))
-                
-                if response_data.get("sources"):
-                    with st.expander("📚 View Sources"):
-                        for source in response_data["sources"]:
-                            st.markdown(f"""
-                            **Source {source['index']}:**
-                            - Document: {source['document_id']}
-                            - Similarity: {source['similarity_score']:.2%}
-                            - Preview: {source['preview'][:150]}...
-                            """)
-                
-                # Add to chat history
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": response_data.get("response", "No response"),
-                    "sources": response_data.get("sources", [])
-                })
-    
+
     # Tab 3: Manage Documents
     with tab3:
         st.header("📊 Manage Documents")
@@ -301,6 +263,30 @@ def main():
         if st.button("🧹 Clear Chat History", use_container_width=True):
             st.session_state.chat_history = []
             st.success("Chat history cleared!")
+
+    # Chat input (must live outside tabs/containers per Streamlit constraints)
+    user_query = st.chat_input("Ask a question...", key="user_input")
+
+    if user_query:
+        # Add user message to history
+        st.session_state.chat_history.append({
+            "role": "user",
+            "content": user_query
+        })
+
+        # Generate response
+        with st.spinner("🤔 Thinking..."):
+            response_data = answer_question(user_query, system)
+
+        # Add to chat history
+        st.session_state.chat_history.append({
+            "role": "assistant",
+            "content": response_data.get("response", "No response"),
+            "sources": response_data.get("sources", [])
+        })
+
+        # Rerun so the new messages render inside the chat history on Tab 2
+        st.rerun()
 
 
 if __name__ == "__main__":

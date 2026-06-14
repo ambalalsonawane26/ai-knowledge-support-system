@@ -5,7 +5,7 @@ Pinecone vector store integration for semantic search
 import logging
 from typing import List, Dict, Tuple
 import pinecone
-from app.config import PINECONE_API_KEY, PINECONE_ENVIRONMENT, PINECONE_INDEX_NAME
+from app.config import PINECONE_API_KEY, PINECONE_INDEX_NAME
 from app.utils.embeddings import EmbeddingGenerator
 
 logger = logging.getLogger(__name__)
@@ -20,10 +20,7 @@ class PineconeVectorStore:
         
         # Initialize Pinecone client and target the index by name.
         self.index_name = PINECONE_INDEX_NAME
-        self.pinecone_client = pinecone.Pinecone(
-            api_key=PINECONE_API_KEY,
-            host=PINECONE_ENVIRONMENT
-        )
+        self.pinecone_client = pinecone.Pinecone(api_key=PINECONE_API_KEY)
         self.index = self.pinecone_client.Index(self.index_name)
         
         # Initialize embedding generator
