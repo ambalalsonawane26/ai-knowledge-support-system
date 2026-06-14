@@ -20,7 +20,7 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "documents")
 
 # Hugging Face Configuration
 HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN", "")
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "mistral-7b")
+LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "meta-llama/Llama-3.1-8B-Instruct")
 
 # Embedding Configuration
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")

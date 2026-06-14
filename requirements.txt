@@ -8,10 +8,10 @@ streamlit-chat==0.1.1
 
 # Vector Database
 pinecone-client==3.0.0
-sentence-transformers==2.2.2
+sentence-transformers==2.7.0
 
 # LLM & NLP
-huggingface-hub==0.19.4
+huggingface-hub==0.34.0
 transformers==4.35.2
 torch==2.2.0
 

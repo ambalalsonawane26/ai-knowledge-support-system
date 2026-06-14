@@ -57,14 +57,14 @@ class HuggingFaceLLM:
             prompt = self._create_prompt(query, context_text)
             
             # Generate response
-            response = self.client.text_generation(
-                prompt=prompt,
-                max_new_tokens=max_length,
+            completion = self.client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=max_length,
                 temperature=temperature,
                 top_p=0.95,
-                repetition_penalty=1.2
             )
-            
+            response = completion.choices[0].message.content
+
             result = {
                 "response": response,
                 "query": query,
@@ -176,13 +176,13 @@ Answer: """
             logger.info("Generating summary")
             
             prompt = f"Summarize the following text in {max_length} words:\n\n{text}\n\nSummary:"
-            
-            summary = self.client.text_generation(
-                prompt=prompt,
-                max_new_tokens=max_length
+
+            completion = self.client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=max_length
             )
-            
-            return summary
+
+            return completion.choices[0].message.content
             
         except Exception as e:
             logger.error(f"Error summarizing text: {str(e)}")
@@ -208,13 +208,13 @@ Answer: """
                 system_prompt = "You are a helpful assistant. Answer the question based on the provided context."
             
             prompt = f"{system_prompt}\n\nContext: {context}\n\nQuestion: {question}\n\nAnswer:"
-            
-            answer = self.client.text_generation(
-                prompt=prompt,
-                max_new_tokens=256
+
+            completion = self.client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=256
             )
-            
-            return answer
+
+            return completion.choices[0].message.content
             
         except Exception as e:
             logger.error(f"Error answering question: {str(e)}")
