@@ -2,6 +2,7 @@
 Pinecone vector store integration for semantic search
 """
 
+import json
 import logging
 from typing import List, Dict, Tuple
 import pinecone
@@ -28,7 +29,23 @@ class PineconeVectorStore:
         
         logger.info(f"Connected to Pinecone index: {self.index_name}")
     
-    def upsert_documents(self, 
+    @staticmethod
+    def _sanitize_metadata(metadata: Dict) -> Dict:
+        """
+        Convert metadata values to types accepted by Pinecone
+        (string, number, boolean, or list of strings).
+        """
+        sanitized = {}
+        for key, value in metadata.items():
+            if isinstance(value, (str, int, float, bool)):
+                sanitized[key] = value
+            elif isinstance(value, list) and all(isinstance(item, str) for item in value):
+                sanitized[key] = value
+            else:
+                sanitized[key] = json.dumps(value)
+        return sanitized
+
+    def upsert_documents(self,
                         documents: List[str], 
                         document_id: str,
                         metadata: Dict = None) -> bool:
@@ -60,7 +77,7 @@ class PineconeVectorStore:
                 }
                 
                 if metadata:
-                    vector_metadata.update(metadata)
+                    vector_metadata.update(self._sanitize_metadata(metadata))
                 
                 vectors_to_upsert.append((
                     vector_id,
