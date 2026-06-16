@@ -31,6 +31,7 @@ MAX_UPLOAD_SIZE_MB = int(os.getenv("MAX_UPLOAD_SIZE_MB", "100"))
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "500"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))
 TOP_K_RETRIEVAL = int(os.getenv("TOP_K_RETRIEVAL", "5"))
+MAX_QUERY_LENGTH = int(os.getenv("MAX_QUERY_LENGTH", "1000"))
 
 # Directory Configuration
 UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, os.getenv("UPLOAD_FOLDER", "data/uploaded_documents"))
@@ -52,7 +53,8 @@ SUPPORTED_FILE_TYPES = {
 # API Configuration (Optional Backend)
 API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "8000"))
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "['http://localhost:3000', 'http://localhost:8501']")
+_cors_raw = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8501")
+CORS_ORIGINS = [origin.strip() for origin in _cors_raw.split(",") if origin.strip()]
 
 # Streamlit Configuration
 STREAMLIT_CONFIG = {

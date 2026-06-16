@@ -10,7 +10,7 @@ from pathlib import Path
 
 from app.config import (
     STREAMLIT_CONFIG, UPLOAD_FOLDER, validate_config,
-    MAX_UPLOAD_SIZE_MB, SUPPORTED_FILE_TYPES, TOP_K_RETRIEVAL
+    MAX_UPLOAD_SIZE_MB, SUPPORTED_FILE_TYPES, TOP_K_RETRIEVAL, MAX_QUERY_LENGTH
 )
 from app.utils.document_processor import DocumentProcessor
 from app.utils.vector_store import PineconeVectorStore
@@ -68,33 +68,29 @@ def save_upload_file(uploaded_file) -> str:
         return None
 
 
-def process_and_index_document(file_path: str, system: dict) -> bool:
-    """Process document and index it in Pinecone"""
+def process_and_index_document(file_path: str, system: dict) -> str | None:
+    """Process document and index it in Pinecone. Returns doc_id on success, None on failure."""
     try:
         with st.spinner(f"Processing {Path(file_path).name}..."):
             processor = system["processor"]
             vector_store = system["vector_store"]
-            
-            # Process document
+
             chunks, metadata = processor.process_file(file_path)
-            
-            # Generate document ID
             doc_id = f"{Path(file_path).stem}_{datetime.now().timestamp()}"
-            
-            # Upsert to Pinecone
+
             vector_store.upsert_documents(
                 documents=chunks,
                 document_id=doc_id,
                 metadata=metadata
             )
-            
+
             st.success(f"✅ Successfully indexed {len(chunks)} chunks from {Path(file_path).name}")
-            return True
-            
+            return doc_id
+
     except Exception as e:
         st.error(f"Error processing document: {str(e)}")
         logger.error(f"Document processing error: {str(e)}")
-        return False
+        return None
 
 
 def answer_question(query: str, system: dict) -> dict:
@@ -194,15 +190,14 @@ def main():
                     file_path = save_upload_file(uploaded_file)
                     
                     if file_path:
-                        # Process and index
-                        success = process_and_index_document(file_path, system)
-                        
-                        if success:
-                            # Store in session state
+                        doc_id = process_and_index_document(file_path, system)
+
+                        if doc_id:
                             if "indexed_documents" not in st.session_state:
                                 st.session_state.indexed_documents = []
-                            
+
                             st.session_state.indexed_documents.append({
+                                "id": doc_id,
                                 "name": uploaded_file.name,
                                 "size": uploaded_file.size,
                                 "indexed_at": datetime.now()
@@ -254,7 +249,16 @@ def main():
                 
                 with col3:
                     if st.button("🗑️", key=f"delete_{doc['name']}"):
-                        st.info(f"Delete feature coming soon for {doc['name']}")
+                        try:
+                            system["vector_store"].delete_document(doc["id"])
+                            st.session_state.indexed_documents = [
+                                d for d in st.session_state.indexed_documents
+                                if d["name"] != doc["name"]
+                            ]
+                            st.success(f"Deleted {doc['name']}")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Delete failed: {e}")
         else:
             st.info("No documents indexed yet. Upload documents in the 'Upload Documents' tab.")
         
@@ -268,7 +272,10 @@ def main():
     user_query = st.chat_input("Ask a question...", key="user_input")
 
     if user_query:
-        # Add user message to history
+        if len(user_query) > MAX_QUERY_LENGTH:
+            st.warning(f"Query too long ({len(user_query)} chars). Maximum is {MAX_QUERY_LENGTH} characters.")
+            st.stop()
+
         st.session_state.chat_history.append({
             "role": "user",
             "content": user_query

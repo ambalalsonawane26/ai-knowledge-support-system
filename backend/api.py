@@ -31,10 +31,10 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Initialize services
@@ -54,16 +54,18 @@ def read_root():
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 def health_check():
-    """Health check endpoint"""
-    return HealthResponse(
-        status="healthy",
-        version="1.0.0",
-        components={
-            "api": "running",
-            "document_service": "running",
-            "qa_service": "running"
-        }
-    )
+    """Health check endpoint — verifies service availability"""
+    components: dict[str, str] = {"api": "running"}
+
+    try:
+        document_service.vector_store.index.describe_index_stats()
+        components["pinecone"] = "connected"
+    except Exception as e:
+        logger.warning(f"Pinecone health check failed: {e}")
+        components["pinecone"] = f"error: {str(e)[:80]}"
+
+    overall = "healthy" if all(v in ("running", "connected") for v in components.values()) else "degraded"
+    return HealthResponse(status=overall, version="1.0.0", components=components)
 
 
 @app.post("/api/documents/upload", response_model=DocumentResponse, tags=["Documents"])
